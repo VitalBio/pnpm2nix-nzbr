@@ -19,13 +19,13 @@ in
     { workspace ? null
     , components ? []
     , src ? if (workspace != null && components != []) then workspace else null
-    , packageJSON ? src + "/package.json"
+    , packageJSON ? "${src}/package.json"
     , componentPackageJSONs ? map (c: {
         name = "${c}/package.json";
-        value = src + "/${c}/package.json";
+        value = "${src}/${c}/package.json";
       }) components
-    , pnpmLockYaml ? src + "/pnpm-lock.yaml"
-    , pnpmWorkspaceYaml ? (if workspace == null then null else workspace + "/pnpm-workspace.yaml")
+    , pnpmLockYaml ? "${src}/pnpm-lock.yaml"
+    , pnpmWorkspaceYaml ? (if workspace == null then null else "${workspace}/pnpm-workspace.yaml")
     , pname ? (fromJSON (readFile packageJSON)).name
     , version ? (fromJSON (readFile packageJSON)).version or null
     , name ? if version != null then "${pname}-${version}" else pname
@@ -95,9 +95,6 @@ in
         ["--recursive" "--stream"] ++
         map (c: "--filter ./${c}") components
       ) + " ";
-      buildScripts = ''
-        pnpm run ${optionalString isWorkspace filterString}${script}
-      '';
       # Flag derived from value computed above, indicating the single dist
       # should be copied as $out directly, rather than $out/${distDir}
       computedDistDirIsOut =
@@ -144,7 +141,7 @@ in
 
             runHook preBuild
 
-            ${buildScripts}
+            pnpm run ${script}
 
             runHook postBuild
           '';
