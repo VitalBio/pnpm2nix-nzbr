@@ -28,17 +28,23 @@ rec {
         '';
       findTarball = n: v:
         switch [
-          {
-            case = (v.resolution.type or "") == "git";
-            result =
-              mkTarball n (
-                fetchGit {
-                  url = v.resolution.repo;
-                  rev = v.resolution.commit;
-                  shallow = true;
-                }
-              );
-          }
+          (
+            let
+              repo = fetchGit {
+                url = v.resolution.repo;
+                rev = v.resolution.commit;
+                shallow = true;
+              };
+
+              repoPath = if v.resolution ? path
+                then "${repo}/${v.resolution.path}"
+                else repo;
+            in
+            {
+              case = (v.resolution.type or "") == "git";
+              result = mkTarball n repoPath;
+            }
+          )
           {
             case = hasAttrByPath [ "resolution" "tarball" ] v && hasAttrByPath [ "resolution" "integrity" ] v;
             result = fetchurl {
