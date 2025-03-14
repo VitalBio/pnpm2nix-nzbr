@@ -34,6 +34,7 @@ rec {
                 url = v.resolution.repo;
                 rev = v.resolution.commit;
                 shallow = true;
+                allRefs = true;
               };
 
               repoPath = if v.resolution ? path
