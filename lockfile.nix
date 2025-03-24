@@ -33,8 +33,7 @@ rec {
               repo = fetchGit {
                 url = v.resolution.repo;
                 rev = v.resolution.commit;
-                shallow = true;
-                allRefs = true;
+                shallow = false;
               };
 
               repoPath = if v.resolution ? path
