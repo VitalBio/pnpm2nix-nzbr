@@ -7,8 +7,11 @@
 
 with lib;
 rec {
+  convertJson = lockfile: runCommand "toJSON" { } "${remarshal}/bin/yaml2json ${lockfile} $out";
 
-  parseLockfile = lockfile: builtins.fromJSON (readFile (runCommand "toJSON" { } "${remarshal}/bin/yaml2json ${lockfile} $out"));
+  lockfilePath = lockfile: if hasSuffix ".json" lockfile then lockfile else convertJson lockfile;
+
+  parseLockfile = lockfile: builtins.fromJSON (readFile (lockfilePath lockfile));
 
   processLockfile = { registry, lockfile, noDevDependencies }:
     let
